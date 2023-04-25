@@ -65,7 +65,7 @@ main = do
 
 -- | The core of the program. Takes a list of bids and executes them.
 
-data BookedBid = BuyBid Person Price | SellBid Person Price
+data BookedBid = BuyBid Person Price | SellBid Person Price deriving Show
 
 
 type BuyBid  = BookedBid
@@ -79,8 +79,8 @@ instance Eq BookedBid where
 
 
 instance Ord BookedBid where
-  BuyBid  _ x <= BuyBid  _ y = x <= y
-  SellBid _ x <= SellBid _ y = x >= y
+  BuyBid  _ x <= BuyBid  _ y = x >= y
+  SellBid _ x <= SellBid _ y = x <= y
   BuyBid  _ x <= SellBid _ y = x <= y
   SellBid _ x <= BuyBid  _ y = x <= y
  
@@ -138,56 +138,14 @@ printBooks :: OrderBook -> IO()
 printBooks (buys, sells) = do
   putStrLn "OrderBok:"
   putStr "Säljare: " 
-  applyIO (\(SellBid n p) -> printer n p) sells
+  applyIO (\(SellBid n p) -> printer n p) (\(SellBid n p) -> finalPrinter n p) sells --lite fult med båda funktionerna
 
   putStrLn ""
   putStr "Köpare: "
-  applyIO (\(BuyBid n p) -> printer n p) buys
+  applyIO (\(BuyBid n p) -> printer n p) (\(BuyBid n p) -> finalPrinter n p) buys
     where 
-      printer n p = putStr $ n ++ " " ++ show p ++ ", " 
+      printer n p = putStr $ n ++ " " ++ show p ++ ", "
+      finalPrinter n p = putStr $ n ++ " " ++ show p  
 
 
 
---intercalate
-
-
-{- transactions :: OrderBook -> [Bid] -> IO ()
-transactions ob [] = printBooks ob
-
-transactions ob (b:bids) = do
-  x <- handlePurchase ob b
-  y <- makePurchase ob
-  transactions y bids
-
-makePurchase :: OrderBook -> IO OrderBook
-makePurchase ob@(buys, sells) = do
-  if comparePeeks (>=) buys sells then do 
-    let b = peek buys
-    let s = peek sells
-
-    purchase b s
-    return (removeMinT buys, removeMin sells)
-
-  else return ob 
-
-handleBid :: OrderBook -> Bid -> IO OrderBook
-handleBid ob@(buys, sells) b = do
-  case b of
-    (Buy n p)       -> return (addT (BuyBid n p) buys, sells)
-
-    (Sell n p)      -> return (buys, add (SellBid n p) sells)
-
-    (NewBuy n _ p)  -> return (findAndReplaceT (\(BuyBid on _) -> on == n) (BuyBid n p) buys, sells)
-
-    (NewSell n _ p) -> return (buys, findAndReplace (\(SellBid on _) -> on == n) (SellBid n p) sells) -}
-
-
-
-
-
-
-
-{- instance Show BookedBid where -- was used for testing/troubleshooting
-  show (BuyBid n _)  = n
-  show (SellBid n _) = n
- -}
