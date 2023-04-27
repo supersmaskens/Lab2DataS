@@ -111,7 +111,7 @@ handleBid ob@(buys, sells) b = do
                        in handleBid (buys, newSells) (Sell n p)
 
 
--- Comparing bids and adding/removing from books.
+-- Comparing bids and adding/removing from books accordingly.
 buy :: OrderBook -> BuyBid -> IO OrderBook
 buy (buys, sells) bid =                  -- Note that the if statement will be False when sells is Empty
   if compareToPeek (>=) bid sells then   -- so no need to worry about peeking an empty heap.
